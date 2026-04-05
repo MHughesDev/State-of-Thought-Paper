@@ -1,0 +1,47 @@
+\section{Discussion, Limitations, and Extensions}
+\label{sec:discussion}
+
+\subsection{Positioning of the formalism}
+\label{subsec:disc-positioning}
+
+\Cref{sec:formal-model,sec:session-persistence,sec:theoretical} together specify the object, the pipeline, and the epistemic status of deferred claims.
+At a high level, State of Thought answers a structural question---what counts as \emph{the} cognitive state of a multi-agent stack---without tying the answer to a vendor API or a particular retrieval implementation.
+The primitive commitments are threefold: a \emph{global} subgraph of closed, durable thoughts; \emph{session} slices that make multi-agent expansion finite and inspectable; and an \emph{external} interface that lands evidence in layer~$0$ before abstraction.
+
+\subsection{Layers, slices, and closure}
+\label{subsec:disc-mechanisms}
+
+\paragraph{Layers.}
+Layer indices realize the vertex partition $\Vlayer{h}$ and enforce admissibility: higher-layer thoughts that close globally must declare downward witness structure to globally persistent layer~$0$ (\Cref{def:admissibility}).
+Summarization is therefore paid for explicitly: it cannot silently float free of evidence.
+
+\paragraph{Slices.}
+Retrieval selects a finite working substructure from a potentially unbounded global graph; without slices, parallel expansion is not a well-defined finite object.
+
+\paragraph{Closure.}
+Persistence is gated exclusively by $\CloseOp_t^{\Pi}$ (\Cref{def:closure-op}): admissibility gate, conflict policy, then global write.
+Merge reconciles agents; it does not, by itself, assert durability.
+
+\subsection{Reference policies as illustration}
+\label{subsec:disc-reference}
+
+The triple $(\PsiConf^{\mathrm{ref}},\PsiMerge^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$ is a \emph{pedagogical} choice: it exhibits conservative coexistence under symmetric conflict, commutative merge, and trace-minimal provenance without declaring uniqueness or optimality.
+Alternative $\PsiConf$ and $\PsiMerge$ remain compatible with the same signatures (\Cref{def:conflict-policy,def:merge-policy}).
+
+\subsection{Limitations and scope of claims}
+\label{sec:limitations}
+
+This work is a pure theory-and-method contribution: definitions, operators, and explicitly qualified statements (remarks, one conjecture, and open questions listed in the appendix).
+It does not describe an implementation, measure a runtime, or compare systems on tasks; by design it supports no quantitative claim about deployment behavior, scalability, latency, or task success.
+
+\paragraph{Policy underdetermination.}
+The reference triple fixes one coherent realization; $\SliceOp_t$, alternative merge orders, and alternative conflict regimes are not pinned to a unique global specification---many realizations fit \Cref{sec:formal-model,sec:session-persistence}.
+
+\paragraph{Continuations of the theory program.}
+Admissibility is defined path-wise (\Cref{def:admissibility}).
+Refining or resolving \Cref{conj:close-preserve}, and characterizing totality or uniqueness of $\MergeOp_t^{\PsiMerge}$ and $\CloseOp_t^{\Pi}$ for general $\Pi$, are natural mathematical continuations; \Cref{sec:th-open} and \Cref{app:open-questions} collect them in one place.
+A lemma--theorem layer on witness-path dynamics under closure would spell out graph-theoretic hypotheses (edge updates under $\CloseOp_t^{\Pi}$, preservation of $\Tadm$-connectivity) beyond this manuscript's scope; see \Cref{app:proof-program}.
+
+\paragraph{Extensions.}
+Higher-order topological refinements of the baseline graph model are left for future work.
+Comparative empirical studies and alternative policy instantiations beyond the reference triple are outside the scope of this paper; \Cref{sec:related} and \Cref{app:notes} indicate directions.

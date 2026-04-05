@@ -1,0 +1,74 @@
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection{Motivation: a formal state object for persistent multi-agent cognition}
+\label{subsec:intro-motivation}
+
+Multi-agent systems that use language models, tools, and external data sources typically maintain memory, working context, and durable artifacts through stacks that combine retrieval, tool traces, and summarization \citep{yao2023react,qin2024toollearning}; long-horizon designs further separate working memory from external stores \citep{packer2024memgpt}.
+Such stacks can be highly effective in deployment; they nonetheless leave open how to name a \emph{single} mathematical object that answers, at once: what thoughts exist, which are merely provisional, which are promoted to shared durable knowledge, and which transitions are permitted by the architecture itself.
+This paper specifies such an object.
+
+\emph{State of Thought} represents cognition as a \emph{layered directed typed multigraph}: vertices are thoughts; each carries a layer index, open or closed status, a persistence scope, and optional embedding; each edge has a type drawn from a finite contract (support, dependency, implication, contradiction, provenance, and other fixed labels).
+The project label \emph{Matrioshka Brain} is informal; the mathematical object is \emph{State of Thought}.
+
+\subsection{Why informal stacks are insufficient}
+\label{subsec:intro-insufficient}
+
+Scratch buffers, vector stores, and prompt templates can be combined ad hoc, but without an explicit state object, ``global memory'' and ``session context'' become implementation phrases rather than structural commitments.
+Three distinctions must be primitive if persistence and multi-agent expansion are to be analyzed rather than merely implemented:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Cognitive state} at an index $t$: the full typed graph and labels (\Cref{sec:formal-model}).
+  \item \textbf{Global state:} the subgraph of thoughts that are closed \emph{and} globally persistent---the durable cognitive core (\Cref{def:global-state}).
+  \item \textbf{Session slice:} material retrieved from globals for a query, plus session-only open extensions (\Cref{def:session-slice}).
+  \item \textbf{External interface:} observations admitted into layer~$0$ by ingest, before higher layers interpret them (\Cref{def:external-interface}).
+\end{itemize}
+Without this split, one cannot state precisely where exploration ends and commitment begins, nor separate evidence from abstraction in a uniform way.
+
+\subsection{Design commitments: open and closed thought, layers, closure}
+\label{subsec:intro-design}
+
+An \emph{open} thought is provisional ($o(v)=\text{open}$); a \emph{closed} thought has been accepted for its layer and scope ($o(v)=\text{closed}$).
+\emph{Closure} $\CloseOp_t^{\Pi}$ is the promotion gate: it applies admissibility, conflict policy, and persistence rules (\Cref{def:closure-op}).
+Layers $\LayerSet=\{0,\ldots,H\}$ are not decorative: they index $\Vlayer{h}$ and enter admissibility (\Cref{def:admissibility}).
+Layer~$0$ is observation and evidence; higher layers may link downward but do not rewrite layer~$0$ payload (\Cref{ax:layer-zero}).
+
+\emph{Belief} (in the narrow sense used here) is a \emph{proper} subset of closed global thoughts: it additionally requires a layer threshold, admissibility, and non-blocked stance (\Cref{def:belief}).
+Session-open hypotheses are not beliefs; layer~$0$ vertices are not beliefs.
+
+\subsection{Contributions}
+\label{subsec:intro-contributions}
+
+This paper makes the following contributions.
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Object definition.} A complete specification of the State of Thought tuple, edge-type inventory, global and session substructures, and external ingest (\Cref{sec:formal-model}).
+  \item \textbf{Operator signatures.} Session dynamics as maps---$\SliceOp$, $\StemOp$, $\ExpandOp$, $\MergeOp$, $\CloseOp$, $\IngestOp$---on graph-structured state (\Cref{sec:session-persistence}).
+  \item \textbf{Policy-parameterized governance.} Conflict, merge, and closure decomposition through $\PsiConf$, $\PsiMerge$, and $\Pi=(\PsiConf,\SigmaAdm,\Pi_{\mathrm{prov}})$ (\Cref{def:conflict-policy,def:merge-policy,def:closure-op}), with conditional statements at stated epistemic status (\Cref{sec:theoretical}).
+  \item \textbf{Reference instantiation.} A concrete triple $(\PsiConf^{\mathrm{ref}},\PsiMerge^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$ and a symbolic trace showing the definitions in action (\Cref{def:ref-conflict,def:ref-merge,def:ref-provenance}, \Cref{app:worked-example}).
+\end{enumerate}
+
+The central contribution is \emph{mathematical and architectural}: an explicit state object, policy-parameterized governance, and a clear split between definitions, the reference instantiation, and conjectures left for future analysis.
+
+\subsection{Scope and epistemic status}
+\label{subsec:intro-scope}
+
+This is a pure theory-and-method manuscript: no software artifact, benchmark, or deployment metric is reported.
+Literature positioning and scope relative to neighboring work appear in \Cref{sec:related}.
+Where graph-theoretic consequences would require additional hypotheses, \Cref{sec:theoretical} and the appendix state them as conjectures or open questions rather than as finished theorems.
+
+\subsection{Roadmap}
+\label{subsec:intro-roadmap}
+
+\Cref{sec:related} places the formalism next to blackboard-style shared memory, global-workspace analogies, recent agent-memory systems, and multilayer graph formalisms.
+\Cref{sec:preliminaries} fixes typed multigraphs, layers, and status maps.
+\Cref{sec:formal-model} defines the State of Thought object, admissibility, policies, closure, the reference triple, and an invariant classification table.
+\Cref{sec:session-persistence} gives the end-to-end session pipeline and the reference merge policy.
+\Cref{sec:theoretical} records definitional remarks, one conjecture, and pointers to further open questions.
+\Cref{sec:discussion} unifies discussion with limitations and extensions; \Cref{sec:conclusion} summarizes and points forward.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig1_global_session_external}
+  \caption{Global persistent subgraph $\GlobalState_t$, session slice (globals plus session-only open vertices), external ingest to $\Vlayer{0}$, and closure write-back.
+  Belief (\Cref{def:belief}) requires more than closure in the slice; stance $\stance_t$ omitted.}
+  \label{fig:overview}
+\end{figure}

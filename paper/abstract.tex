@@ -1,0 +1,11 @@
+Persistent multi-agent cognition requires a single object in which \emph{what is known}, \emph{what is provisional}, and \emph{what may persist} are simultaneously representable and auditable.
+We develop \emph{State of Thought}: a layered directed typed multigraph whose vertices are thoughts, whose edges carry a finite type vocabulary (support, contradiction, provenance, and contract-fixed types), and whose labels distinguish abstraction layer, open versus closed status, persistence scope, and optional epistemic stance.
+The formalism unifies three regions---globally closed structure, query-local session structure, and an external interface into the evidence layer---and a single closure map that promotes session-local candidates to global persistence under explicit policies.
+
+Admissibility is path-based along designated downward types $\Tadm$ to layer~$0$ witnesses that are themselves globally persistent (\Cref{def:admissibility}).
+Conflict handling and parallel-agent reconciliation are not hard-coded: they are policy objects $\PsiConf$ and $\PsiMerge$ (\Cref{def:conflict-policy,def:merge-policy}), composed with an admissibility gate and a provenance subpolicy inside a decomposed closure operator $\CloseOp_t^{\Pi}$ (\Cref{def:closure-op}).
+To make the architecture legible without collapsing generality, we give one \emph{reference} triple $(\PsiConf^{\mathrm{ref}},\PsiMerge^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$---conservative coexistence, commutative merge up to identification, and trace-minimal provenance retention (\Cref{def:ref-conflict,def:ref-merge,def:ref-provenance})---together with a symbolic worked trace in \Cref{app:worked-example}.
+
+The main text records definitional consequences, one conjecture on admissibility stability under closure (\Cref{conj:close-preserve}), and a concise list of open questions (\Cref{sec:theoretical}, \Cref{app:open-questions}).
+We do not claim implementation results, empirical behavior, or general graph-theoretic theorems beyond what is stated.
+\Cref{sec:related} situates the work relative to classical shared-memory cognitive architectures, recent tool-augmented and memory-centric language-model agents, and formal multilayer network models.

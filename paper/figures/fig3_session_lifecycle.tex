@@ -1,0 +1,30 @@
+% Figure 3 — Session lifecycle pipeline (PROJECT_SPEC.md 11A)
+% Dashed group uses `fit` around agent boxes so the frame does not cross interior text.
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners, minimum height=0.9cm, minimum width=2.0cm, align=center},
+  arr/.style={-{Latex[length=2mm]}, thick},
+]
+
+\node[box] (q) at (0,0) {\textbf{Query}};
+\node[box] (sl) at (2.6,0) {\textbf{Slice}\\$\SliceOp$};
+\node[box] (a1) at (5.3,0.75) {\textbf{Agent 1}\\stem};
+\node[box] (a2) at (5.3,-0.75) {\textbf{Agent 2}\\stem};
+\node[box] (m) at (8.1,0) {\textbf{Debate/Merge}\\$\MergeOp$};
+\node[box] (cl) at (10.9,0) {\textbf{Close}\\$\CloseOp^{\Pi}$};
+\node[box] (rw) at (13.4,0) {\textbf{Persist}\\$\GlobalState_{t+1}$};
+
+\draw[arr] (q) -- (sl);
+\draw[arr] (sl) |- (a1);
+\draw[arr] (sl) |- (a2);
+\draw[arr] (a1) -| node[near start, above, xshift=-6pt] {open} (m);
+\draw[arr] (a2) -| (m);
+\draw[arr] (m) -- (cl);
+\draw[arr] (cl) -- (rw);
+
+\node[draw, dashed, rounded corners, inner sep=9pt, fit=(a1)(a2)] (fitagents) {};
+\node[below=5pt of fitagents.south, font=\footnotesize] {parallel expansion (schematic)};
+
+\end{tikzpicture}%
+}

@@ -1,0 +1,35 @@
+% Shared numbering via `aliascnt`: each environment has its own counter *name* for
+% hyperref/cleveref, while numbers stay in one sequence. Without this,
+% `\newtheorem{definition}[theorem]{Definition}` makes all `\label`s look like
+% `theorem.N`, so \Cref prints "Theorem" for definitions.
+\usepackage{aliascnt}
+\newtheorem{theorem}{Theorem}[section]
+\newaliascnt{lemma}{theorem}
+\newtheorem{lemma}[lemma]{Lemma}
+\aliascntresetthe{lemma}
+\newaliascnt{proposition}{theorem}
+\newtheorem{proposition}[proposition]{Proposition}
+\aliascntresetthe{proposition}
+\newaliascnt{corollary}{theorem}
+\newtheorem{corollary}[corollary]{Corollary}
+\aliascntresetthe{corollary}
+\newaliascnt{assumption}{theorem}
+\newtheorem{assumption}[assumption]{Assumption}
+\aliascntresetthe{assumption}
+\newaliascnt{conjecture}{theorem}
+\newtheorem{conjecture}[conjecture]{Conjecture}
+\aliascntresetthe{conjecture}
+\theoremstyle{definition}
+\newaliascnt{definition}{theorem}
+\newtheorem{definition}[definition]{Definition}
+\aliascntresetthe{definition}
+\newaliascnt{axiom}{theorem}
+\newtheorem{axiom}[axiom]{Axiom}
+\aliascntresetthe{axiom}
+\newaliascnt{example}{theorem}
+\newtheorem{example}[example]{Example}
+\aliascntresetthe{example}
+\theoremstyle{remark}
+\newaliascnt{remark}{theorem}
+\newtheorem{remark}[remark]{Remark}
+\aliascntresetthe{remark}

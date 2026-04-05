@@ -1,0 +1,53 @@
+\section{Related Work}
+\label{sec:related}
+
+State of Thought draws on several partly overlapping literatures: shared-memory cognitive architectures, consciousness-oriented global-workspace accounts (as a conceptual analogy only), recent memory and tool-augmented agents built on foundation models, and mathematical formalisms for multilayer and multiplex graphs.
+This section is not a survey; it states the closest adjacent families and the precise scope of this paper relative to them.
+
+\subsection{Shared structured memory and classical cognitive architectures}
+\label{subsec:rel-shared}
+
+Blackboard systems coordinate multiple independent processes through a shared structured store that is not merely a message bus: hypotheses, partial solutions, and control decisions are recorded on a common medium that all specialists read and write \citep{erm1980hearsayii,nii1986blackboard}.
+Surveys and retrospectives emphasize the diversity of blackboard frameworks and their separation into application systems versus reusable skeletons \citep{nii1986blackboard}.
+Architectures such as Soar integrate reasoning, reactive execution, planning, and learning within a long-standing cognitive-theory commitment \citep{laird2012soar}.
+
+\textbf{Positioning.}
+State of Thought is aligned with the \emph{idea} that durable cognitive structure should live in an explicit shared object, but it is not a blackboard control scheme and not a Soar implementation.
+It is a \emph{mathematical} specification of a typed graph state with global/session/external regions and policy-gated promotion---comparable in \emph{role} to a shared store, different in \emph{formal object} and in the explicit split between provisional session structure and globally persistent closure.
+
+\subsection{Global workspace as analogy (not an implementation claim)}
+\label{subsec:rel-gwt}
+
+Global workspace theory posits broadly broadcast, capacity-limited access to conscious contents in service of integration and control \citep{baars2005gwt}.
+\textbf{Positioning.}
+The paper's ``global'' subgraph is \emph{not} a claim about human consciousness or neural correlates; it borrows only the vocabulary of a distinguished, globally accessible workspace.
+State of Thought is a \emph{design-level} formalism for agents: it specifies what is globally persistent in a software stack, not a psychological model.
+
+\subsection{Tool-augmented agents, retrieval, and persistent context}
+\label{subsec:rel-agents}
+
+Recent foundation-model agents interleave reasoning, tool calls, and retrieval \citep{yao2023react,qin2024toollearning}.
+Systems that treat long-context management as an operating-system problem explicitly separate core memory from external memory hierarchies \citep{packer2024memgpt}.
+Graph-based retrieval-and-summarization pipelines impose relational structure on retrieved units and their connections \citep{edge2025graphrag}.
+
+\textbf{Positioning.}
+These lines of work supply motivating use cases and engineering context; they do not, by themselves, define a single typed multigraph state with layer-0 protection, admissibility paths, and a decomposed closure operator.
+State of Thought is intended as a \emph{reference architecture in mathematical form}: it can describe what such systems store and update at a higher level of abstraction than a particular vector store schema or prompting pattern.
+
+\subsection{Multilayer and multiplex graphs}
+\label{subsec:rel-multilayer}
+
+Multilayer network formulations give tensorial and algebraic structure for systems with multiple interaction types or coupled layers \citep{dedomenico2013multilayer}.
+Multiplex networks are an important special case in which layers share a vertex set but differ in intra-layer connectivity \citep{gomez2013multiplex}.
+
+\textbf{Positioning.}
+State of Thought uses layered vertex sets $\Vlayer{h}$ and typed edges; this is conceptually adjacent to multilayer formalisms, but the layer semantics here are fixed by the paper's cognitive architecture (evidence at layer~$0$, abstraction height, open/closed status, and persistence scopes tied to closure).
+We do not import the multilayer dynamics or tensor machinery of \citet{dedomenico2013multilayer}; we cite it for mathematical kinship and for readers who wish to connect to that literature.
+
+\subsection{What this paper does \emph{not} claim}
+\label{subsec:rel-niche}
+
+No empirical comparison to prior systems is offered: the contribution is definitional and architectural.
+The reference policies $(\PsiConf^{\mathrm{ref}},\PsiMerge^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$ illustrate one coherent policy triple; alternative policies remain in the same formal class (\Cref{def:conflict-policy,def:merge-policy,def:closure-op}).
+
+The contribution is intentionally bounded: a \emph{specific synthesis}---typed multigraph, global/session/external decomposition, path-based admissibility to persistent layer~$0$ evidence, and policy-parameterized closure/merge/conflict/provenance---presented as one mathematical object with explicit epistemic status for conjectures and for questions left open (\Cref{sec:theoretical,sec:discussion}).

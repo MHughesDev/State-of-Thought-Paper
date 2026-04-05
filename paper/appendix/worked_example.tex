@@ -1,0 +1,36 @@
+\subsection{Worked symbolic example}
+\label{app:worked-example}
+
+The following trace is theoretical: it fixes a small labeled graph and follows slice $\to$ merge $\to$ closure under $(\PsiConf^{\mathrm{ref}},\PsiMerge^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$.
+Take $H=1$, $h_{\mathrm{bel}}=1$, and a single session query $q$ at index $t$.
+
+\paragraph{Global base.}
+Let $o_0\in\VlayerTime{0}{t}\cap V^{\mathrm{g}}_t$ be closed, global evidence with $\stance_t(o_0)=\mathrm{asserted}$.
+Let $g\in V^{\mathrm{g}}_t\cap\VlayerTime{1}{t}$ be a closed global hypothesis with $\stance_t(g)=\mathrm{asserted}$.
+
+\paragraph{Session slice and expansions.}
+The slice $\SessionState_t(q)$ contains $o_0$ (read-only) and session-only vertices $a_1,b_1\in\VlayerTime{1}{t}$ with $o_t=\text{open}$, $p_t=\text{session}$.
+Expansions add:
+\begin{itemize}[leftmargin=*]
+  \item $\Tadm$-edges from $a_1$ and from $b_1$ down to $o_0$;
+  \item a $\mathrm{conf}$ edge between $a_1$ and $g$;
+  \item a $\mathrm{conf}$ edge between $a_1$ and $b_1$.
+\end{itemize}
+
+\paragraph{Merge ($\PsiMerge^{\mathrm{ref}}$).}
+Suppose $a_1\not\sim b_1$.
+$\MergeOp_t^{\PsiMerge^{\mathrm{ref}}}$ forms the disjoint union, quotients by $\sim$, unions edges, and retains both $\mathrm{conf}$ edges (\Cref{def:ref-merge}), yielding $\CandSet_t$ with $V^{\mathrm{c}}_t=\{a_1,b_1\}$.
+
+\paragraph{Closure ($\CloseOp_t^{\Pi}$, $\SigmaAdm$ matching \Cref{def:admissibility}).}
+Both candidates admit $\Tadm$-witness paths to $o_0\in\VlayerTime{0}{t}\cap V^{\mathrm{g}}_t$, hence pass admissibility.
+Apply $\PsiConf^{\mathrm{ref}}$: $(g,a_1)\in\ConfRel_t$ forces doubt on $a_1$; $(a_1,b_1)\in\ConfRel_t$ then forces doubt on both (\Cref{def:ref-conflict}\,(iii)).
+Both vertices close into $V^{\mathrm{g}}_{t+1}$ with $\mathrm{doubt}$ stance.
+
+\paragraph{Closed versus belief.}
+The vertices are closed globals; they qualify as beliefs under \Cref{def:belief} because stance is not $\mathrm{blocked}$.
+An explicit $\mathrm{blocked}$ annotation (out of band) would preserve closure but exclude belief.
+
+\paragraph{Provenance.}
+$\Pi_{\mathrm{prov}}^{\mathrm{ref}}$ retains the downward $\Tadm$-edges to $o_0$ and may record $(t,\text{agent ids})$ when present on candidates.
+
+The example exhibits layer~$0$ evidence, higher-layer open candidates, merging under conflict, closure under $\PsiConf^{\mathrm{ref}}$, and the belief predicate.

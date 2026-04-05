@@ -1,0 +1,31 @@
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{xurl}
+% cleveref is loaded in `main.tex` *after* `tex/theorem_setup.tex` so environment
+% types (definition, remark, axiom, …) are recognized; loading cleveref before
+% \newtheorem causes all \cref/\Cref to mislabel as "Theorem".
+\usepackage{enumitem}
+\usepackage{placeins}
+\usepackage{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,shapes.geometric,calc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!45!black,
+  citecolor=blue!45!black,
+  urlcolor=blue!45!black,
+  pdftitle={State of Thought: A Theoretical Architecture for Persistent Multi-Agent Cognition},
+  pdfauthor={Mason Hughes},
+  pdfkeywords={cognitive architecture, multi-agent systems, formal methods, knowledge representation},
+}
+% Reduce the frequency of overfull lines in dense definition blocks (with microtype).
+\emergencystretch=2em

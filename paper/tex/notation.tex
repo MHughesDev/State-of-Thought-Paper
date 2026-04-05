@@ -1,0 +1,23 @@
+% Notation summary (front matter after abstract; aligns with \Cref{sec:formal-model})
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Primary notation (see definitions cited).}
+  \label{tab:notation-summary}
+  \begin{tabularx}{\linewidth}{@{}lX@{}}
+    \toprule
+    Symbol & Meaning \\
+    \midrule
+    $\ThoughtGraph_t$ & Cognitive state at $t$ (tuple including $\stance_t$ when used) \\
+    $\GlobalState_t$, $\SessionState_t(q)$, $\ExternalState_t$ & Global subgraph, session slice, external observations (\Cref{def:global-state,def:session-slice,def:external-interface}) \\
+    $\Tadm$, $\ConfRel_t$ & Admissibility-eligible types; symmetric conflict (\Cref{def:edge-types,def:conflict-relation}) \\
+    $\mathcal{A}_t(v)$ & Admissibility; witness in $\VlayerTime{0}{t}\cap V^{\mathrm{g}}_t$ (\Cref{def:admissibility}) \\
+    $\PsiConf$, $\PsiMerge$, $\Pi_{\mathrm{prov}}$ & Conflict, merge, and provenance policies (\Cref{def:conflict-policy,def:merge-policy,def:closure-op}) \\
+    $\PsiConf^{\mathrm{ref}}$, $\PsiMerge^{\mathrm{ref}}$, $\Pi_{\mathrm{prov}}^{\mathrm{ref}}$ & Reference triple (\Cref{def:ref-conflict,def:ref-merge,def:ref-provenance}) \\
+    $V^{\mathrm{g,as}}_t$ & Asserted globals under stance (\Cref{def:asserted-globals}) \\
+    $\CloseOp_t^{\Pi}$, $\SigmaAdm$ & Closure; admissibility gate (\Cref{def:closure-op}) \\
+    $\BelPred$, $h_{\mathrm{bel}}$, $\stance_t$ & Belief predicate, layer threshold, stance (\Cref{def:belief}) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

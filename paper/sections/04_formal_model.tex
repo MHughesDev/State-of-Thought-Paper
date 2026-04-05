@@ -1,0 +1,294 @@
+\section{Formal Model: State of Thought}
+\label{sec:formal-model}
+
+Building on \Cref{sec:preliminaries}, this section defines the \emph{State of Thought} object: a typed multigraph whose labels encode layer, status, scope, and (optionally) stance, together with the policy-parameterized predicates that govern when session-local structure becomes globally persistent.
+Unless marked \emph{optional}, definitions are part of the main formalism; optional variants are isolated in remarks.
+
+\subsection{Cognitive state at an update index}
+\label{sec:formal-cognitive}
+
+Let $t\in T$ range over update indices (session indices or discrete times).
+At each $t$, \emph{cognitive state} is a tuple
+\begin{equation}
+\label{eq:cognitive-state}
+  \ThoughtGraph_t = \bigl(V_t,\mathcal{E}_t,\src_t,\tgt_t,\tau_t,\ell_t,\mathrm{emb}_t,o_t,p_t,\stance_t\bigr),
+\end{equation}
+where $(V_t,\mathcal{E}_t,\src_t,\tgt_t,\tau_t)$ is a directed typed multigraph (\Cref{sec:prelim-graphs}),
+$\ell_t$, $\mathrm{emb}_t$, $o_t$, and $p_t$ are as before,
+and $\stance_t:V_t\rightharpoonup \{\mathrm{asserted},\mathrm{doubt},\mathrm{blocked}\}$ is a \emph{partial} \emph{epistemic stance} map (defined on globally persistent closed vertices; optional elsewhere).
+The stance records conflict-policy outcomes (\Cref{def:conflict-policy}); it may be omitted in minimal models.
+Operationally, $\ThoughtGraph_t$ is the entire inspectable substrate at $t$; global, session, and external roles are recovered from $o_t$, $p_t$, and retrieval maps rather than from separate stores.
+
+\begin{definition}[Edge-type inventory]
+\label{def:edge-types}
+Fix a finite set $\EdgeTypeSet$.
+Disjoint subsets (not necessarily exhaustive of $\EdgeTypeSet$) include:
+\begin{itemize}[leftmargin=*]
+  \item $\Tadm\subseteq \EdgeTypeSet$ --- \emph{admissibility-eligible} types (support, dependency, provenance; labels fixed by contract);
+  \item $\mathrm{conf}\in\EdgeTypeSet$ --- \emph{contradiction} type;
+  \item remaining types (implication, stem, etc.) as needed.
+\end{itemize}
+The map $\tau_t:\mathcal{E}_t\to\EdgeTypeSet$ assigns each edge identifier its type.
+Here $\EdgeTypeSet$ is the static type system for edges; $\Tadm$ designates which types count as downward justification for admissibility.
+\end{definition}
+
+\subsection{Contradiction as a symmetric relation}
+\label{sec:formal-conflict-graph}
+
+\begin{definition}[Conflict edge and conflict relation]
+\label{def:conflict-relation}
+For fixed $t$, define the \emph{conflict relation} $\ConfRel_t\subseteq V_t\times V_t$ by: $(u,v)\in\ConfRel_t$ if and only if $u\neq v$ and there exists $e\in\mathcal{E}_t$ with $\tau_t(e)=\mathrm{conf}$ and $\{\src_t(e),\tgt_t(e)\}=\{u,v\}$.
+Then $\ConfRel_t$ is symmetric by construction.
+Thus an undirected incompatibility is recorded by one $\mathrm{conf}$ edge; orientation is irrelevant to membership in $\ConfRel_t$.
+\end{definition}
+
+Cross-layer conflict is allowed unless a policy restricts it (\Cref{def:conflict-policy}); the graph places no general prohibition on $\ell(u)$ versus $\ell(v)$.
+
+\subsection{Layer~\texorpdfstring{$0$}{0} and external state}
+\label{sec:formal-layer0}
+
+\begin{definition}[Layer-$0$ vertices]
+$\VlayerTime{0}{t} := \{ v\in V_t : \ell_t(v)=0\}$ is the \emph{observation / evidence layer}.
+\end{definition}
+
+\begin{definition}[External state and ingest]
+\label{def:external-interface}
+Let $\ExternalState_t$ be a finite set of \emph{external observations}.
+An \emph{ingest} map is an injective partial map $\IngestOp_t : \ExternalState_t \rightharpoonup \VlayerTime{0}{t}$ creating new vertices in $\VlayerTime{0}{t}$.
+Only $\IngestOp_t$ (and explicitly axiomatized layer-$0$ revision operators) may add or remove vertices in $\VlayerTime{0}{t}$; see \Cref{ax:layer-zero}.
+\end{definition}
+
+\subsection{What may enter, persist, or remain ephemeral}
+\label{sec:scope-flow}
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Scope and flow (read with definitions below). ``Write back'' means promotion into $\GlobalState_{t+1}$ via closure, not direct edit.}
+  \label{tab:scope-flow}
+  \begin{tabularx}{\linewidth}{@{}p{2.6cm}XX@{}}
+    \toprule
+    Region & What it is & Allowed interactions \\
+    \midrule
+    $\ExternalState_t$ & Observations before ingest & Maps into $\Vlayer{0}$ via $\IngestOp_t$ only \\
+    $\VlayerTime{0}{t}$ & Evidence / tool traces as thoughts & Ingest adds; higher layers may \emph{link} (edges) but not rewrite payload (\Cref{ax:layer-zero}) \\
+    $\GlobalState_t$ & Closed, globally scoped subgraph (\Cref{def:global-state}) & Persistent across sessions; session \emph{reads} via slice \\
+    Session slice & Selected global material + session-only open extensions (\Cref{def:session-slice}) & Ephemeral open vertices; \emph{write back} only through $\CloseOp_t^{\Pi}$ \\
+    Higher layers $h\ge 1$ & Abstract thoughts & May infer and add edges downward; may not replace $\Vlayer{0}$ content \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Global state (persistent cognitive subgraph)}
+\label{sec:formal-global}
+
+\begin{definition}[Globally persistent subgraph]
+\label{def:global-state}
+The \emph{global state} at $t$ is $\GlobalState_t=(V^{\mathrm{g}}_t,\mathcal{E}^{\mathrm{g}}_t,\src_t,\tgt_t,\tau_t)$ with
+\begin{align*}
+  V^{\mathrm{g}}_t &:= \{\, v\in V_t : o_t(v)=\text{closed} \;\wedge\; p_t(v)=\text{global} \,\}, \\
+  \mathcal{E}^{\mathrm{g}}_t &:= \{\, e\in\mathcal{E}_t : \src_t(e)\in V^{\mathrm{g}}_t \;\wedge\; \tgt_t(e)\in V^{\mathrm{g}}_t \,\}.
+\end{align*}
+Intuitively, $\GlobalState_t$ is exactly the durable, closed, globally scoped portion of the thought graph; session-local open vertices are invisible to this subgraph.
+\end{definition}
+
+\subsection{Session slice}
+\label{sec:formal-session}
+
+\begin{definition}[Session slice]
+\label{def:session-slice}
+Fix a query $q\in Q$.
+A \emph{session slice} is $\SessionState_t(q) = (V^{\mathrm{sel}}_t(q),\mathcal{E}^{\mathrm{sel}}_t(q), V^{\mathrm{new}}_t(q),\mathcal{E}^{\mathrm{new}}_t(q))$ where $(V^{\mathrm{sel}}_t,\mathcal{E}^{\mathrm{sel}}_t)$ is a typed subgraph of material \emph{copied} from $\GlobalState_t$ (same vertices as in $V_t$, read-only in session unless explicitly edited under session policy),
+$V^{\mathrm{new}}_t(q)\subseteq V_t$ consists of \emph{session-only} vertices (typically $o_t=\text{open}$, $p_t=\text{session}$),
+and $\mathcal{E}^{\mathrm{new}}_t(q)$ are edges incident to $V^{\mathrm{new}}_t(q)$.
+\end{definition}
+
+Intuitively, a session slice is ``what the session sees now'': a read-only view of selected globals plus freshly minted session-only structure that has not yet been promoted.
+
+Session material is \emph{ephemeral} except vertices/edges promoted by closure into $V^{\mathrm{g}}_{t+1}$.
+
+\subsection{Downward witness paths and admissibility (main formalism)}
+\label{sec:formal-admissibility}
+
+Admissibility is \emph{path-based} and evaluated on the graph in which closure is decided (typically $\ThoughtGraph_t$ augmented with candidate vertices and edges).
+
+\begin{definition}[Downward step and witness path]
+\label{def:witness-path}
+Fix $\ThoughtGraph_t$ and $\Tadm$.
+A \emph{downward step} from $x\in V_t$ to $y\in V_t$ is an edge $e\in\mathcal{E}_t$ such that $\tau_t(e)\in\Tadm$, $\{\src_t(e),\tgt_t(e)\}=\{x,y\}$, and $\layerof{y}<\layerof{x}$.
+A \emph{witness path} from $v$ to $u$ is a finite sequence $v=x_0,x_1,\ldots,x_m=u$ such that each $(x_{i-1},x_i)$ is a downward step.
+Intuitively, a witness path is a finite ``explanation chain'' stepping downward along admissibility-eligible edges toward evidence.
+\end{definition}
+
+\begin{definition}[Grounding and admissibility (main)]
+\label{def:admissibility}
+Let $V^{\mathrm{g}}_t$ be as in \Cref{def:global-state}.
+For any $v\in V_t$ with $o_t(v)=\text{closed}$ and $\layerof{v}=h\ge 1$, define $\mathcal{A}_t(v)$ to hold if and only if there exists a witness path (\Cref{def:witness-path}) from $v$ to some $u\in\VlayerTime{0}{t}\cap V^{\mathrm{g}}_t$.
+\end{definition}
+
+Thus every persisted higher-layer closed thought must \emph{ground to layer~0} along $\Tadm$-edges, with a \emph{terminal witness} in globally persistent layer~0.
+Admissibility is \emph{global}: it is evaluated relative to $V^{\mathrm{g}}_t$ and the full edge set used for the check (candidates included when deciding closure).
+
+\begin{remark}[Optional variant: recursive closed grounding]
+\label{rem:adm-variant}
+An alternative is \emph{recursive grounding}: require a witness path from $v$ to some $u$ with $\layerof{u}<\layerof{v}$, $o_t(u)=\text{closed}$, $p_t(u)=\text{global}$, and either $\layerof{u}=0$ or $\mathcal{A}_t(u)$ inductively.
+This weakens terminal witnesses to already-admissible closed thoughts without requiring every chain to reach layer~0 in one path.
+The main text uses \Cref{def:admissibility}; lemmas may fix one variant.
+\end{remark}
+
+\begin{remark}[Subgraph-based witnesses]
+\label{rem:adm-subgraph}
+One may instead require a connected \emph{Steiner}-style subgraph with $\Tadm$-only edges connecting $v$ to $\Vlayer{0}$; path-based grounding is the minimal commitment used here.
+\end{remark}
+
+\subsection{Belief versus closed thought}
+\label{sec:belief}
+
+\begin{definition}[Belief (manuscript sense)]
+\label{def:belief}
+Fix an integer $h_{\mathrm{bel}}\in\{1,\ldots,H\}$ (policy parameter).
+A vertex $v$ is a \emph{belief} (in the narrow sense of this paper) if and only if
+\[
+  o_t(v)=\text{closed},\quad p_t(v)=\text{global},\quad \layerof{v}\ge h_{\mathrm{bel}},\quad \mathcal{A}_t(v),\quad \stance_t(v)\neq \mathrm{blocked}
+\]
+when $\stance_t$ is defined.
+Intuitively, \emph{belief} marks thoughts that are not merely stored, but treated as eligible premises for downstream reasoning or action under the architecture---subject to layer threshold, grounding, and stance.
+\end{definition}
+
+\begin{remark}
+Not every closed globally persistent thought is a belief: e.g.\ a closed vertex at layer $1<h_{\mathrm{bel}}$ or a closed tactical node may be \emph{closed} but not a \emph{belief}.
+Layer~0 vertices are \emph{not} beliefs.
+Open session hypotheses are \emph{not} beliefs.
+\end{remark}
+
+\subsection{Conflict policy as a formal object}
+
+\begin{definition}[Conflict policy]
+\label{def:conflict-policy}
+A \emph{conflict policy} is a map
+\[
+  \PsiConf : \bigl(\ThoughtGraph_t,\CandSet_t,\ConfRel_t\bigr) \longrightarrow \bigl(\CandSet^{\mathrm{pass}}_t,\CandSet^{\mathrm{fail}}_t,\mathsf{StanceUpdate}\bigr),
+\]
+where $\CandSet_t=(V^{\mathrm{c}}_t,E^{\mathrm{c}}_t)$ is a finite \emph{candidate} vertex--edge set proposed for closure,
+$\CandSet^{\mathrm{pass}}_t\sqcup \CandSet^{\mathrm{fail}}_t$ partitions the \emph{candidate vertices} in $V^{\mathrm{c}}_t$,
+and $\mathsf{StanceUpdate}$ specifies updates to $\stance_t$ on surviving vertices (e.g.\ mark \emph{doubt} when contradictory closed thoughts coexist).
+Intuitively, $\PsiConf$ is where the architecture decides which candidates survive global promotion and how epistemic stance is updated when conflicts are visible.
+\end{definition}
+
+\begin{remark}[Design space]
+\label{rem:conflict-design-space}
+The tuple $(\CandSet^{\mathrm{pass}}_t,\CandSet^{\mathrm{fail}}_t,\mathsf{StanceUpdate})$ may be instantiated in different ways: some policies reject a candidate outright (\emph{fail}), while others persist it with a non-assertive stance (\Cref{def:ref-conflict}).
+No single partitioning rule is imposed here beyond what a concrete policy states.
+\end{remark}
+
+\subsection{Closure operator (domain, codomain, substeps)}
+\label{sec:formal-closure}
+
+Fix a policy tuple $\Pi=(\PsiConf,\SigmaAdm,\Pi_{\mathrm{prov}})$.
+
+\begin{definition}[Candidate set]
+\label{def:candidate}
+A \emph{candidate set} $\CandSet_t=(V^{\mathrm{c}}_t,E^{\mathrm{c}}_t)$ is a finite typed graph fragment (vertices carry proposed $\layerof{\cdot}$, $o=\text{open}$, and proposed edges) intended for promotion.
+\end{definition}
+
+\begin{definition}[Closure as policy-relative partial update]
+\label{def:closure-op}
+The \emph{closure} operator $\CloseOp_t^{\Pi}$ has domain pairs $(\GlobalState_t,\CandSet_t)$ satisfying type/layer consistency preconditions.
+Its codomain is $\GlobalState_{t+1}$ together with a \emph{status} flag in $\{\mathsf{ok},\mathsf{partial},\mathsf{reject}\}$.
+On the \emph{graph} side, it acts by:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item \textbf{Admissibility filter} $\SigmaAdm$: discard candidate vertices in $\CandSet_t$ that fail $\mathcal{A}_t$ when evaluated on the augmented graph (candidates + current $\ThoughtGraph_t$).
+  \item \textbf{Conflict filter} $\PsiConf$: partition remaining candidates using $\ConfRel_t$.
+  \item \textbf{Persistence}: add passed vertices to $V^{\mathrm{g}}_{t+1}$ with $o_{t+1}=\text{closed}$, $p_{t+1}=\text{global}$, add induced edges to $\mathcal{E}^{\mathrm{g}}_{t+1}$, apply $\Pi_{\mathrm{prov}}$ to retain or drop provenance/stem annotations.
+\end{enumerate}
+$\CloseOp_t^{\Pi}$ is \emph{policy-dependent}; for fixed $\Pi$ it is a partial function on its domain (undefined where preconditions fail).
+\emph{Determinism} is not assumed: distinct policies yield distinct maps, and uniqueness of outcomes would require extra hypotheses (for example, a fixed selection rule when $\MergeOp_t^{\PsiMerge}$ or closure is set-valued; see \Cref{def:merge-op,def:closure-op}).
+\emph{Partial failure} is explicit: $\mathsf{partial}$ means some candidates pass and others fail; $\mathsf{reject}$ means no global update.
+Intuitively, closure is the \emph{only} gate that writes new persistent global structure: it filters by grounding, applies conflict policy, then commits structure and stance updates.
+\end{definition}
+
+Invariant preservation (\Cref{conj:close-preserve}) is \emph{not} claimed by construction; it is a separate conjecture under stated policies.
+
+\begin{axiom}[Layer-0 protection]
+\label{ax:layer-zero}
+$\CloseOp_t^{\Pi}$ does not remove or relabel vertices in $\VlayerTime{0}{t}\cap V^{\mathrm{g}}_t$ except through operators explicitly authorized for layer~0 revision (ingest or designated $\Vlayer{0}$ policy).
+No closure of a vertex at layer $\ge 1$ deletes or replaces layer-$0$ observation payload.
+\end{axiom}
+
+\subsection{Reference policy family (conservative coexistence)}
+\label{sec:reference-policies}
+
+Abstract policies remain quantified: any $\PsiConf$, $\PsiMerge$, and $\Pi_{\mathrm{prov}}$ compatible with \Cref{def:conflict-policy,def:merge-policy,def:closure-op} are admissible.
+We nevertheless fix one \emph{reference} triple $(\PsiConf^{\mathrm{ref}},\PsiMerge^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$---minimal rules for coexistence under symmetric conflict, commutative merge, and traceable persistence---worked out in \Cref{app:worked-example}.
+The reference triple is illustrative, not canonical.
+
+\begin{definition}[Asserted-globals subfamily]
+\label{def:asserted-globals}
+For fixed $t$, define the set of \emph{stance-asserted} global vertices
+\[
+  V^{\mathrm{g,as}}_t := \{\, u\in V^{\mathrm{g}}_t : \stance_t(u)=\mathrm{asserted}\,\},
+\]
+when $\stance_t$ is defined on $u$; vertices with $\stance_t$ undefined are treated as not asserted for the reference conflict check below.
+\end{definition}
+
+\begin{definition}[Reference conservative conflict policy]
+\label{def:ref-conflict}
+The \emph{reference conservative conflict policy} $\PsiConf^{\mathrm{ref}}$ acts on $(\ThoughtGraph_t,\CandSet_t,\ConfRel_t)$ (with candidate vertices $V^{\mathrm{c}}_t$ already filtered for graph-theoretic consistency) as follows.
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item \textbf{No conflict-based deletion.} Every candidate vertex is promoted to $\CandSet^{\mathrm{pass}}_t$; $\CandSet^{\mathrm{fail}}_t=\emptyset$.
+  \item \textbf{Stance relative to asserted globals.} For each $v\in V^{\mathrm{c}}_t$, if there exists $u\in V^{\mathrm{g,as}}_t$ with $(u,v)\in\ConfRel_t$, then $\mathsf{StanceUpdate}$ sets $\stance_{t+1}(v)=\mathrm{doubt}$; otherwise $\stance_{t+1}(v)=\mathrm{asserted}$.
+  \item \textbf{Candidate--candidate clashes.} If $v,w\in V^{\mathrm{c}}_t$ are distinct and $(v,w)\in\ConfRel_t$, then $\mathsf{StanceUpdate}$ sets $\stance_{t+1}(v)=\stance_{t+1}(w)=\mathrm{doubt}$ (overriding (ii) if needed).
+\end{enumerate}
+Contradiction remains symmetric; cross-layer $\mathrm{conf}$ edges are allowed.
+The policy does \emph{not} assign $\mathrm{blocked}$ from conflict alone---blocking, if used, is reserved for explicit out-of-band events (\Cref{def:belief} still excludes $\mathrm{blocked}$ from belief).
+\end{definition}
+
+\begin{definition}[Reference provenance policy]
+\label{def:ref-provenance}
+The \emph{reference provenance policy} $\Pi_{\mathrm{prov}}^{\mathrm{ref}}$ retains, in $\mathcal{E}^{\mathrm{g}}_{t+1}$:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item every $\Tadm$-edge from a newly closed vertex to its layer-$0$ witness (support / dependency links used in \Cref{def:witness-path});
+  \item every stem- or provenance-type edge declared in $\CandSet_t$ whose endpoints are both in $V^{\mathrm{g}}_{t+1}$;
+  \item optional endpoint annotations recording the update index $t$ and contributing agent identifiers when those labels are already present on vertices in $\CandSet_t$.
+\end{enumerate}
+All other candidate-local bookkeeping may be discarded when closing.
+\end{definition}
+
+\begin{remark}[Readability of $\Pi_{\mathrm{prov}}^{\mathrm{ref}}$]
+\label{rem:ref-prov-read}
+This reference rule makes persistence \emph{traceable}: a closed thought carries enough downward structure to audit its grounding path and enough metadata to attribute the closure step, without specifying a full audit log implementation.
+\end{remark}
+
+\subsection{Invariants: definitional, reference, and conjectural}
+\label{sec:invariants}
+
+Table~\ref{tab:invariants} summarizes what follows from definitions alone, what is assumed only under $(\PsiConf^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$, and what remains conjectural.
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \caption{Invariant status (core definitions and reference policies). ``By construction'' means a single closure step under the stated gate, not arbitrary future evolution.}
+  \label{tab:invariants}
+  \begin{tabularx}{\linewidth}{@{}p{3.75cm}X@{}}
+    \toprule
+    Statement & Status \\
+    \midrule
+    Layer-$0$ vertices are only added/removed by $\IngestOp_t$ or authorized layer-$0$ revision (not by higher-layer closure) & \textbf{Definitional} / axiom: \Cref{ax:layer-zero} \\
+    Downward support used for $\mathcal{A}_t$ follows $\Tadm$ and decreases layer along each step & \textbf{Definitional}: \Cref{def:witness-path} \\
+    Only $\CloseOp_t^{\Pi}$ promotes session candidates to $V^{\mathrm{g}}_{t+1}$ (merge does not write globals) & \textbf{By construction} of pipeline: \Cref{def:merge-op,def:closure-op} \\
+    Belief requires closed + global + $\layerof{v}\ge h_{\mathrm{bel}}$ + $\mathcal{A}_t(v)$ + $\stance_t(v)\neq\mathrm{blocked}$ & \textbf{Definitional}: \Cref{def:belief} \\
+    Session-only open vertices are not beliefs & \textbf{Definitional}: $p(v)=\text{session}$ or $o(v)=\text{open}$ excludes \Cref{def:belief} \\
+    Candidates passing $\SigmaAdm$ satisfy $\mathcal{A}_t$ at closure time & \textbf{By construction} when $\SigmaAdm$ implements \Cref{def:admissibility} (\Cref{rem:adm-gate}) \\
+    Under $\PsiConf^{\mathrm{ref}}$, conflicting candidates close with $\mathrm{doubt}$ when asserted globals or sibling candidates conflict & \textbf{Reference policy} only: \Cref{def:ref-conflict} \\
+    Admissibility of old globals persists after later closures & \textbf{Conjectural} without edge-update semantics: \Cref{conj:close-preserve} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig2_layered_graph}
+  \caption{Layer partition $\Vlayer{h}$ and downward $\Tadm$-edges (support) used in \Cref{def:witness-path}. Contradiction (\Cref{def:conflict-relation}) may link vertices in the same or different layers; dashed red is one example. Global vs.\ session-only vertices are not distinguished visually here---see \Cref{fig:overview}.}
+  \label{fig:layers}
+\end{figure}

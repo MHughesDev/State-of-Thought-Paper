@@ -1,0 +1,39 @@
+\section{Problem Setup}
+\label{sec:problem}
+
+We specify the cognitive state object and the formal problem addressed by the architecture.
+
+\subsection{State object}
+At time or session index $t$, the cognitive substrate is represented as a tuple
+\begin{equation}
+\label{eq:state-object}
+  \ThoughtGraph_t = (V_t, E_t, \LayerSet, \ell, \tau, \mathrm{emb}, o, p),
+\end{equation}
+where $(V_t,E_t)$ is a directed typed graph, $\ell$ assigns layers, $\tau$ assigns edge types, $\mathrm{emb}$ maps vertices to embeddings when enabled, and $o,p$ record openness and persistence scope.
+Equation~\eqref{eq:state-object} is \emph{provisional but close to exact}: additional bookkeeping (timestamps, agent provenance, audit hashes) may be appended without changing the core structure.
+
+Let $\GlobalState_t$ denote the persistent global graph at $t$.
+Let $\SessionState_t(q)$ denote session-local state for query $q$, constructed as a subgraph of $\GlobalState_t$ together with session-only vertices and edges for open thoughts.
+
+\subsection{Retrieval and slicing}
+Retrieval is modeled abstractly by an operator
+\[
+  \SessionState_t(q) = \SliceOp(q, \GlobalState_t),
+\]
+which may combine vector similarity on embeddings with relational neighborhood expansion.
+The exact slice objective is an open design choice; the architecture only requires that slices be computable and auditable enough to support provenance (complexity or approximation guarantees for slicing are outside this paper's scope).
+
+\subsection{Formal problem (architecture-level)}
+The central design problem is to specify operators and constraints so that:
+\begin{enumerate}[leftmargin=*]
+  \item Session agents can explore freely using open thoughts without contaminating global state prematurely.
+  \item Higher-layer closures respect intended support structure relative to lower layers.
+  \item Layer $0$ remains externally grounded and is not silently overwritten by higher-layer operations.
+\end{enumerate}
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig2_layered_graph}
+  \caption{Layered thought graph with downward support/dependency structure. Higher layers should admit dependency witnesses toward lower layers; contradiction and implication edges (if present) should remain visually and logically distinct. \emph{Simplification:} only one explicit support path is highlighted.}
+  \label{fig:layers}
+\end{figure}

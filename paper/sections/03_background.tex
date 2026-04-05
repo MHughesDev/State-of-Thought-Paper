@@ -1,0 +1,53 @@
+\section{Background and Preliminaries}
+\label{sec:background}
+
+This section fixes terminology for graphs, layers, and status labels used throughout.
+
+\subsection{Graphs and typing}
+Let $G=(V,E)$ denote a directed graph with finite vertex set $V$ and edge set $E\subseteq V\times V$.
+In State of Thought, $G$ is \emph{typed}: each edge $e$ carries a type label $\tau(e)$ drawn from a finite set of relation kinds (support, dependency, contradiction, implication, provenance links, etc.).
+The exact type system is part of the architecture contract and may evolve; the manuscript requires only that types be distinguishable in principle.
+
+\subsection{Abstraction layers}
+Layers are modeled by a map $\ell:V\to\LayerSet$ where $\LayerSet=\{0,1,\ldots,H\}$.
+Lower indices indicate lower semantic abstraction; higher indices indicate higher abstraction.
+Layer $0$ is the observation- or evidence-facing layer: it hosts externally grounded traces (tool outputs, sensor readings, retrieved documents) represented as thoughts for uniformity.
+Higher layers synthesize structure from lower layers.
+
+\subsection{Thoughts as nodes}
+A \emph{thought node} is not merely text: it is a typed element of state carrying (at minimum) metadata sufficient for retrieval, provenance, and admissibility checking.
+The project specification allows embeddings $\embvec{v}\in\mathbb{R}^d$ as optional but expected components for vector retrieval.
+
+\subsection{Global, session, and external state (informal)}
+\emph{Global state} refers to persistent closed structure intended to survive across sessions.
+\emph{Session state} refers to a working copy constructed for a query or task, typically as a slice of global state augmented with open thoughts and local edits.
+\emph{External state} refers to observations and tool outputs that enter layer $0$ (or an equivalent interface) without being ``derived'' by internal reasoning alone.
+
+These distinctions are refined formally in \Cref{sec:problem}.
+
+\subsection{Open vs.\ closed}
+Let $o(v)\in\{\text{open},\text{closed}\}$.
+Open thoughts are provisional; closed thoughts are accepted under closure policy.
+Let $p(v)$ denote persistence scope (e.g., global vs.\ session-only); the exact enumeration is part of the implementation contract but must prevent silent promotion of session-only open thoughts to global persistence.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Conceptual inventory of node/edge/state attributes (Table~1 plan in \texttt{PROJECT\_SPEC.md}).}
+  \label{tab:ontology}
+  \begin{tabular}{@{}p{2.6cm}p{1.6cm}p{4.2cm}p{3.6cm}@{}}
+    \toprule
+    Item & Symbol & Meaning & Persistence / notes \\
+    \midrule
+    Thought node & $v\in V$ & Typed cognitive element with layer and status & Closed thoughts may be global; open thoughts are session-local by default \\
+    Support edge & $e$, $\tau(e)=\text{support}$ & Justification or evidential linkage & Subject to admissibility rules \\
+    Dependency edge & $\tau(e)=\text{depends}$ & Structural dependency & Used in merge ordering and diagnostics \\
+    Contradiction edge & $\tau(e)=\text{contradicts}$ & Incompatibility & Drives non-silent merge outcomes \\
+    Open thought & $o(v)=\text{open}$ & Not yet accepted & Ephemeral unless closed \\
+    Closed thought & $o(v)=\text{closed}$ & Accepted under policy & Eligible for global store \\
+    Global state & $\GlobalState_t$ & Persistent graph & Survives across sessions \\
+    Session state & $\SessionState_t$ & Slice + open extensions & Rewiped after closure \\
+    External state & $\ExternalState_t$ & Observations / tool I/O & Grounds layer $0$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

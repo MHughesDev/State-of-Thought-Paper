@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "description": "Optional crosswalk: figure \\label → TikZ source. Page numbers are auto-read from paper/main.aux by scripts; update this file only when paths change.",
+  "figures": [
+    {
+      "label": "fig:overview",
+      "tex": "paper/figures/fig1_global_session_external.tex"
+    },
+    {
+      "label": "fig:layers",
+      "tex": "paper/figures/fig2_layered_graph.tex"
+    },
+    {
+      "label": "fig:pipeline",
+      "tex": "paper/figures/fig3_session_lifecycle.tex"
+    }
+  ]
+}

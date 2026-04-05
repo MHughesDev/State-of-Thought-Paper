@@ -1,0 +1,71 @@
+\section{Preliminaries and Basic Definitions}
+\label{sec:preliminaries}\label{sec:background}
+
+This section develops the graph primitives and status maps underlying \Cref{sec:formal-model}.
+Primary symbols are listed in the \emph{Notation Summary} above; the cognitive-state tuple (including optional $\stance_t$) appears in \Cref{eq:cognitive-state}.
+
+\subsection{Directed typed multigraphs}
+\label{sec:prelim-graphs}
+
+Let $V$ be a finite set of \emph{vertices} and $\EdgeTypeSet$ a finite set of \emph{edge type labels}.
+A \emph{directed typed multigraph} is a tuple $H=(V,\mathcal{E},\src,\tgt,\tau)$ where $\mathcal{E}$ is a finite set of \emph{edge identifiers},
+$\src,\tgt:\mathcal{E}\to V$, and $\tau:\mathcal{E}\to\EdgeTypeSet$.
+Parallel edges are allowed: distinct $e,e'\in\mathcal{E}$ may share endpoints and even type.
+Intuitively, ``typed multigraph'' means the architecture may record multiple distinct relationships of the same type between the same thoughts.
+
+For an edge $e\in\mathcal{E}$, we write $u\xrightarrow{e}w$ when $\src(e)=u$, $\tgt(e)=w$, and $\tau(e)$ is the declared type.
+When no confusion arises, ``edge'' refers either to $e\in\mathcal{E}$ or to its image under $(\src,\tgt,\tau)$.
+
+\subsection{Layers and vertex partition}
+\label{sec:prelim-layers}
+
+Fix $H\in\mathbb{N}_0$.
+The \emph{layer set} is $\LayerSet=\{0,1,\ldots,H\}$.
+A \emph{layer map} is a function $\ell:V\to\LayerSet$.
+For each $h\in\LayerSet$, define the \emph{layer-$h$ vertex set}
+\[
+  \Vlayer{h} := \{\, v\in V : \ell(v)=h \,\}.
+\]
+Then $V=\bigsqcup_{h\in\LayerSet}\Vlayer{h}$ (disjoint union).
+
+\subsection{Status and scope maps (syntax)}
+\label{sec:prelim-status}
+
+Let $\mathcal{O}=\{\text{open},\text{closed}\}$ and let $\mathcal{P}$ be a finite set of \emph{persistence scopes} containing at least $\text{global}$ and $\text{session}$.
+(In minimal instantiations, $\mathcal{P}=\{\text{global},\text{session}\}$.)
+A \emph{status map} is $o:V\to\mathcal{O}$; a \emph{scope map} is $p:V\to\mathcal{P}$.
+
+\subsection{Embeddings (optional)}
+\label{sec:prelim-emb}
+
+Fix $d\in\mathbb{N}$.
+An \emph{embedding map} is $\mathrm{emb}:V\to\mathbb{R}^d$.
+It is used only where retrieval or similarity is part of the slice definition; the formal model treats it as optional auxiliary data.
+
+\subsection{Handoff to the formal model}
+\label{sec:prelim-handoff}
+
+The next section fixes the \emph{State of Thought} tuple at an update index: cognitive graph, layers, global versus session structure, external ingest, admissibility to layer~$0$, policy objects, closure, and a reference policy triple instantiated for readability.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Inventory of node, edge, and state constructs (read with \Cref{sec:formal-model}).}
+  \label{tab:ontology}
+  \begin{tabularx}{\linewidth}{@{}llXX@{}}
+    \toprule
+    Item & Symbol & Role & Notes \\
+    \midrule
+    Thought & $v\in V$ & Vertex with $\layerof{v}$, $o(v)$, $p(v)$ & Atomic cognitive element \\
+    Layer-$h$ set & $\Vlayer{h}$ & $\ell^{-1}(h)$ & $h=0$: evidence layer \\
+    Typed edge & $e\in\mathcal{E}$ & $\src,\tgt,\tau$ & Types in $\EdgeTypeSet$ \\
+    Support / dep.\ & $\tau(e)\in\{\mathrm{supp},\ldots\}$ & Justification / structure & Exact labels fixed in \Cref{def:edge-types} \\
+    Contradiction & $\tau(e)=\mathrm{conf}$ & Conflict / incompatibility & Non-silent merge \\
+    Open / closed & $o(v)$ & Provisional vs.\ accepted & Closure toggles to closed \\
+    Global state & $\GlobalState_t$ & Persistent subgraph & \Cref{def:global-state} \\
+    Session slice & $\SessionState_t(q)$ & Retrieved + open extensions & \Cref{def:session-slice} \\
+    External stream & $\ExternalState_t$ & Observations before ingest & \Cref{def:external-interface} \\
+    Belief & $\BelPred(v)$ & Closed global, $\layerof{v}\ge h_{\mathrm{bel}}$, admissible, not blocked & \Cref{def:belief} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

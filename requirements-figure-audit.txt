@@ -1,0 +1,3 @@
+# Optional dependencies for autonomous figure visual audit (PNG export from PDF).
+# Install: pip install -r requirements-figure-audit.txt
+pymupdf>=1.23.0

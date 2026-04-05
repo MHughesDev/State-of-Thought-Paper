@@ -1,0 +1,80 @@
+% =============================================================================
+% ARCHIVED DRAFT FRAGMENT — not \input{} by `paper/main.tex`.
+% Active formal model: `sections/04_formal_model.tex`.
+% =============================================================================
+\iffalse
+\section{State of Thought / Matrioshka Brain Formalism}
+\label{sec:formalism}
+
+This section defines the architecture's core objects and operators at a level precise enough to support implementation, while marking unresolved proof obligations honestly.
+
+\subsection{Thoughts, layers, and admissibility intent}
+\begin{definition}[Thought node (working)]
+\label{def:thought-node}
+A \emph{thought node} is a typed state element equipped with a layer $\ell(v)\in\LayerSet$, an openness label $o(v)\in\{\text{open},\text{closed}\}$, a persistence scope label $p(v)$, optional embedding $\embvec{v}$, and incident typed edges to other thoughts.
+\end{definition}
+
+\begin{definition}[Open vs.\ closed]
+\label{def:open-closed}
+An \emph{open} thought is session-local or not-yet-accepted under active reasoning.
+A \emph{closed} thought is accepted under closure policy and eligible for persistent global storage subject to additional global invariants.
+\end{definition}
+
+Layer $0$ is reserved for externally grounded observations and evidence traces represented as thoughts.
+The architecture intends that higher-layer \emph{closed} thoughts do not persist without some support linkage to lower-layer structure.
+The precise admissibility predicate is still open; we state it as a proposition template rather than a finished theorem.
+
+\begin{proposition}[Support admissibility template]
+\label{prop:support-template}
+Let $\mathcal{A}(v)$ denote an admissibility predicate for closed thoughts at layers $>0$.
+Any admissible closed thought $v$ with $\ell(v)>0$ should possess at least one witness path to lower-layer structure via allowed edge types (support/dependency/provenance as defined by the architecture).
+\end{proposition}
+
+\subsection{Operator inventory}
+\Cref{tab:operators} summarizes the operator family (Table~2 plan in \texttt{PROJECT\_SPEC.md}).
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Operator inventory and status (conceptual).}
+  \label{tab:operators}
+  \begin{tabular}{@{}p{2.0cm}p{3.0cm}p{3.0cm}p{2.4cm}p{3.0cm}@{}}
+    \toprule
+    Operator & Input & Output & Role & Unresolved questions \\
+    \midrule
+    $\SliceOp$ & query $q$, global $\GlobalState_t$ & session slice $\SessionState_t(q)$ & Retrieve relevant subgraph & Exact vector/relational fusion rule \\
+    $\StemOp$ & agent $a$, slice $\SessionState_t$ & stem vertex or subgraph & Local expansion anchor & Multi-stem policies \\
+    $\AbstractOp$ & open subgraph / vertex & proposed higher-layer thought & Upward abstraction & When abstraction is allowed to close \\
+    $\ImplyOp$ & higher-layer thought & lower-layer expectations & Downward entailment interface & Semantics (logical vs.\ heuristic) \\
+    $\MergeOp$ & candidate sets $\{\SessionState_t^{(a)}\}_{a\in A}$ & merged candidate set $C_t$ & Reconcile parallel work & Deadlock, tie-breaking, contradiction surfacing \\
+    $\CloseOp$ & $\GlobalState_t$, $C_t$ & updated $\GlobalState_{t+1}$ & Persistence gate & Exact screening rules \\
+    Prune / consolidate & $\GlobalState_t$ & $\GlobalState_{t+1}'$ & Optional offline hygiene & Policy and safety constraints \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Session state as slice plus open extensions}
+\begin{proposition}[Session state representation sketch]
+\label{prop:session-slice}
+A session state can be represented as an induced or augmented slice of $\GlobalState_t$ together with session-local open vertices/edges and provenance metadata tying session edits to agents and stem choices.
+\end{proposition}
+
+This statement is largely definitional once slice augmentation rules are fixed.
+
+\subsection{Update cycle equations (provisional)}
+The following equations are intentionally provisional (see \texttt{PROJECT\_SPEC.md}):
+\begin{align}
+  \SessionState_t(q) &= \SliceOp(q, \GlobalState_t), \\
+  C_t &= \MergeOp\big(\{\SessionState_t^{(a)}\}_{a\in A}\big), \\
+  \GlobalState_{t+1} &= \CloseOp(\GlobalState_t, C_t).
+\end{align}
+
+\subsection{Closure-preservation conjecture (explicitly open)}
+\begin{conjecture}[Closure preserves admissibility (candidate)]
+\label{conj:close-preserve}
+If $\CloseOp$ accepts only candidates satisfying the architecture's support-admissibility and contradiction-screening rules, then the support-admissibility invariant is preserved across updates.
+\end{conjecture}
+
+\subsection{End-to-end summary of one session update cycle}
+At a high level, a session: (i) retrieves a slice, (ii) spawns agents with stems, (iii) expands open thoughts locally, (iv) merges candidates, (v) closes a subset into $\GlobalState_{t+1}$, and (vi) discards or rewipes residual open session state.
+\fi

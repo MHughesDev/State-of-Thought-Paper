@@ -1,0 +1,46 @@
+\section{Conditional Consequences and Open Obligations}
+\label{sec:theoretical}
+
+With \Cref{sec:formal-model} and \Cref{sec:session-persistence} fixed, this section records what follows from the definitions alone, what is fixed only by a policy choice, and what we state as a conjecture rather than as a proved invariant.
+The conjecture below is \emph{not} proved here.
+
+\subsection{Definitional consequences}
+\label{sec:th-definitional}
+
+Session slices satisfying \Cref{def:session-slice} have vertex set $V^{\mathrm{sel}}_t(q)\cup V^{\mathrm{new}}_t(q)$ and edge set $\mathcal{E}^{\mathrm{sel}}_t(q)\cup \mathcal{E}^{\mathrm{new}}_t(q)$ with the incidence constraints stated there---an immediate unpacking of the definition.
+
+\begin{remark}[Gate semantics for $\SigmaAdm$]
+\label{rem:adm-gate}
+If $\SigmaAdm$ implements exactly $\mathcal{A}_t$ from \Cref{def:admissibility} on the graph against which closure is evaluated, then every vertex promoted to $V^{\mathrm{g}}_{t+1}$ by $\CloseOp_t^{\Pi}$ lies in $\SigmaAdm$'s pass set and satisfies admissibility \emph{by construction} of the closure step, not by a separate graph-theoretic lemma.
+The architecture enforces grounding at closure time.
+\end{remark}
+
+\subsection{Conjecture (admissibility stability)}
+\label{sec:th-conjecture}
+
+\begin{conjecture}[Admissibility of previously closed vertices]
+\label{conj:close-preserve}
+Assume the recursive variant of admissibility (\Cref{rem:adm-variant}) is \emph{not} used, so \Cref{def:admissibility} applies.
+Assume $\CloseOp_t^{\Pi}$ only adds new vertices and edges and does not remove $\Tadm$-edges among old $V^{\mathrm{g}}_t$ except as explicitly allowed.
+Then every $w\in V^{\mathrm{g}}_t$ with $\layerof{w}\ge 1$ that satisfied $\mathcal{A}_t(w)$ before the update still satisfies $\mathcal{A}_{t+1}(w)$ after the update.
+\end{conjecture}
+
+\begin{remark}[Interpretation]
+\label{rem:conj-matters}
+If \Cref{conj:close-preserve} failed, later closures could in principle undermine earlier grounding by altering witness paths---contrary to the usual reading of \Cref{def:closure-op} for vertices that remain global.
+Either direction (proof or counterexample) requires a fully specified edge-update semantics under $\CloseOp_t^{\Pi}$, which this paper does not fix.
+\end{remark}
+
+\subsection{Conflict policies as engineering artifacts}
+\label{sec:th-conflict}
+
+\begin{remark}[Verification, not deduction]
+\label{rem:psi-not-theorem}
+The abstract signature of $\PsiConf$ (\Cref{def:conflict-policy}) leaves the coexistence regime unspecified; \Cref{rem:conflict-design-space} and the reference policy (\Cref{def:ref-conflict}) are two contrasting instances.
+Whether a deployed $\PsiConf$ matches its designer's intent is a verification question, not a consequence of the definition alone.
+\end{remark}
+
+\subsection{Further open questions}
+\label{sec:th-open}
+
+The main unresolved obligations are merge and closure totality outside the reference family, admissibility-variant choice, and layer-$0$ revision under contradiction; details are listed in \Cref{app:open-questions}.

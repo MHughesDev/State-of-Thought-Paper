@@ -1,0 +1,12 @@
+---
+description: Autonomous figure overlap audit via PNG export from PDF
+globs:
+  - paper/figures/**/*.tex
+  - audit/figure_visual/**/*
+---
+
+# Figure visual audit
+
+- Text extract (`docs/PDF_TEXT_EXTRACT.md`) does **not** show TikZ overlaps. For collision checks, run `python scripts/figure_visual_audit.py` after `pip install pymupdf`, then inspect `audit/figure_visual/exports/page-*.png` and follow `prompts/figure_visual_audit_loop.md`.
+- Figure label → page mapping comes from `paper/main.aux`; TikZ paths optional in `audit/figure_visual/manifest.json`.
+- Full workflow: `docs/FIGURE_VISUAL_AUDIT.md`.

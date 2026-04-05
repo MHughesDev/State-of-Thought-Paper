@@ -1,0 +1,39 @@
+\section{Appendix}
+\label{app:notes}
+
+This appendix supports the main text in two ways: it gives a \emph{fully worked} symbolic trace under the reference policy triple, and it states, in one place, the natural mathematical follow-on questions that a longer theory paper could treat as lemmas or theorems.
+Neither list is homework: it scopes honest next steps for readers who wish to refine operators, prove invariants, or compare policies.
+
+\input{appendix/worked_example}
+
+\subsection{Continuations for a proof-oriented theory program}
+\label{app:proof-program}
+The main text is definition- and conjecture-driven: it does not claim general graph-theoretic theorems, and \Cref{conj:close-preserve} is left open.
+The items below are \emph{research directions}: hypotheses under which a future lemma--theorem development could proceed, including edge-update semantics for $\CloseOp_t^{\Pi}$ and preservation of witness structure.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Admissibility stability (\Cref{conj:close-preserve}).} A natural target is to prove or refute the conjecture under explicit rules for how $\CloseOp_t^{\Pi}$ adds edges and vertices, including how witness paths for existing globals are affected.
+  \item \textbf{Merge and closure maps.} Characterize regimes in which $\MergeOp_t^{\PsiMerge}$ and $\CloseOp_t^{\Pi}$ are single-valued, total, or deterministic on natural domains of finite candidate sets.
+  \item \textbf{Coexistence semantics.} Relate a chosen $\PsiConf$ to intended global coexistence rules for closed thoughts (beyond the reference conservative policy).
+\end{itemize}
+
+\subsection{Design space beyond the reference triple}
+\label{app:policy-space}
+\begin{itemize}[leftmargin=*]
+  \item Alternative merge orders, multiset edges, or identification relations $\sim$.
+  \item Alternative conflict handling (e.g.\ hard rejection rather than $\PsiConf^{\mathrm{ref}}$).
+  \item Minimal or externalized provenance relative to $\Pi_{\mathrm{prov}}^{\mathrm{ref}}$.
+  \item Choice between \Cref{def:admissibility} and \Cref{rem:adm-variant}.
+\end{itemize}
+
+\subsection{Further questions}
+\label{app:open-questions}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Merge existence:} Under what $\PsiMerge$ (other than $\PsiMerge^{\mathrm{ref}}$) is $\MergeOp_t^{\PsiMerge}$ single-valued and total on bounded inputs?
+  \item \textbf{Closure totality:} On what domain is $\CloseOp_t^{\Pi}$ defined (unique $\GlobalState_{t+1}$)?
+  \item \textbf{Recursive vs.\ layer-$0$ grounding:} Which admissibility variant matches intended system behavior (\Cref{rem:adm-variant})?
+  \item \textbf{Layer-$0$ revision:} If $\ConfRel_t$ links two vertices in $\Vlayer{0}$, what revision operator applies without violating \Cref{ax:layer-zero}?
+\end{enumerate}
+
+\subsection{Bibliographic scope}
+\label{app:bib-scope}
+The bibliography is compact by design: citations mark conceptual adjacency to classical architectures and recent agent systems, not a survey of either field (\Cref{sec:related}).

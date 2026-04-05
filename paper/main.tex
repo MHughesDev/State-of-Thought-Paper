@@ -1,0 +1,45 @@
+% State of Thought — venue-neutral preprint manuscript (controlling brief: PROJECT_SPEC.md)
+\documentclass[11pt,a4paper]{article}
+
+\input{tex/package_setup}
+\input{tex/theorem_setup}
+\usepackage[capitalise,nameinlink]{cleveref}
+% With `aliascnt`, conjecture/axiom are separate counter types; cleveref has no default names.
+\crefname{conjecture}{conjecture}{conjectures}
+\Crefname{conjecture}{Conjecture}{Conjectures}
+\crefname{axiom}{axiom}{axioms}
+\Crefname{axiom}{Axiom}{Axioms}
+\input{tex/macros}
+
+\title{State of Thought: A Theoretical Architecture for\\Persistent Multi-Agent Cognition}
+\author{Mason Hughes}
+\date{April 4, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\section*{Notation Summary}
+\addcontentsline{toc}{section}{Notation Summary}
+\input{tex/notation}
+\FloatBarrier
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_preliminaries_definitions}
+\input{sections/04_formal_model}
+\input{sections/05_session_dynamics_persistence}
+\input{sections/06_theoretical_properties}
+\input{sections/07_discussion}
+\input{sections/09_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{bib/references}
+
+\appendix
+\input{appendix/appendix}
+
+\end{document}

@@ -1,0 +1,44 @@
+% Figure 2 — Layered graph + support (PROJECT_SPEC.md 11A)
+% Layout pass: left column for layer titles (wrapped); graph in open right region; semantics unchanged.
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  nd/.style={circle, draw, minimum size=6mm, inner sep=0pt},
+  layer/.style={draw, rounded corners, fill=gray!5, minimum width=9.0cm, minimum height=1.42cm},
+  intra/.style={thick},
+  sup/.style={-{Latex[length=2.2mm]}, thick, shorten >=1.2pt, shorten <=1.2pt},
+  con/.style={-{Latex[length=2.2mm]}, thick, dashed, red!68!black, shorten >=1.8pt, shorten <=1.8pt},
+]
+
+\def\layersep{1.72}
+\foreach \L/\lab in {0/Observations,1/Middle synthesis,2/Abstract beliefs} {
+  \node[layer] (L\L) at (0,\L*\layersep) {};
+  \node[anchor=west, text width=2.75cm, align=left, inner sep=0pt, xshift=7pt] at (L\L.west) {\textbf{Layer \L:} \lab};
+}
+
+% Graph shifted right so vertices sit in the clear band (not on layer titles)
+\node[nd] (v0a) at (-1.15,0) {};
+\node[nd] (v0b) at (0.95,0) {};
+\node[nd] (v0c) at (3.15,0) {};
+\draw[intra] (v0a) -- (v0b) -- (v0c);
+
+\node[nd] (v1a) at (-0.05,\layersep) {};
+\node[nd] (v1b) at (2.65,\layersep) {};
+\draw[intra] (v1a) -- (v1b);
+
+\node[nd] (v2a) at (1.15,2*\layersep) {};
+
+\draw[sup] (v2a) -- node[right, font=\footnotesize, xshift=2pt, pos=0.42] {support} (v1a);
+\draw[sup] (v2a) -- (v1b);
+\draw[sup] (v1a) -- (v0b);
+\draw[sup] (v1b) -- (v0c);
+
+% Arc bulges upward, clear of the layer-1 title column
+\draw[con] (v1a) to[bend left=28, looseness=1.12] (v1b);
+
+\node[anchor=north west, font=\footnotesize, yshift=-0.34cm, xshift=0pt] at (L0.south west) {%
+  \emph{Legend:} solid arrows, downward support/dependency along $\Tadm$; dashed red, contradiction (example).%
+};
+
+\end{tikzpicture}%
+}

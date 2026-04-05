@@ -1,0 +1,121 @@
+\section{Session Dynamics and Persistence Mechanism}
+\label{sec:session-persistence}
+
+\Cref{sec:formal-model} fixed the state object, policies, and closure map; here those pieces are composed into an end-to-end session update: retrieve a slice, expand local open structure from each agent, merge into a candidate set, close under $\Pi$.
+Unless noted, operators are partial relations; determinism is not assumed.
+The \emph{reference merge policy} $\PsiMerge^{\mathrm{ref}}$ (\Cref{def:ref-merge}) completes the triple $(\PsiConf^{\mathrm{ref}},\PsiMerge^{\mathrm{ref}},\Pi_{\mathrm{prov}}^{\mathrm{ref}})$ fixed in \Cref{sec:reference-policies}.
+
+\subsection{Retrieval / slice operator}
+\label{sec:op-slice}
+
+\begin{definition}[Slice operator]
+\label{def:slice-op}
+$\SliceOp_t : Q \times \{\GlobalState_t\} \to \{\SessionState_t(q)\}$ produces a session slice satisfying \Cref{def:session-slice}.
+The selection of $V^{\mathrm{sel}}_t$ is read-only copy from $\GlobalState_t$.
+Intuitively, slicing is ``load context'': it materializes a working subgraph without yet committing new persistent thoughts.
+\end{definition}
+
+\subsection{Stem and expansion}
+\label{sec:op-expand}
+
+\begin{definition}[Stem map]
+\label{def:stem}
+$\StemOp_t : A \times \SessionState_t(q) \to V_t \cup \mathcal{P}_{\mathrm{fin}}(V_t)$ as before.
+Intuitively, a stem is where an agent attaches new reasoning---a hook vertex or small hook set in the slice.
+\end{definition}
+
+\begin{definition}[Local session expansion]
+\label{def:expand-op}
+$\ExpandOp_t$ maps $(a,\SessionState_t(q),s^{(a)}_t)$ to a finite open fragment $(\Delta V^{(a)}_t,\Delta \mathcal{E}^{(a)}_t)$ with session scope.
+Intuitively, expansion is local hypothesis formation: new open vertices and edges that are not yet globally persistent.
+\end{definition}
+
+\subsection{Merge operator and merge policy}
+\label{sec:op-merge}
+
+\begin{definition}[Merge policy]
+\label{def:merge-policy}
+A \emph{merge policy} $\PsiMerge$ specifies:
+\begin{itemize}[leftmargin=*]
+  \item an \emph{equivalence} relation $\sim$ on proposed vertex identifiers (duplicate detection / canonicalization);
+  \item whether merge is \emph{order-dependent} (tuple of agents ordered) or \emph{commutative} up to $\sim$;
+  \item how to combine parallel edges (union, multiset union, or quotient).
+\end{itemize}
+Intuitively, $\PsiMerge$ specifies how independent agents' open fragments are aligned, deduplicated, and welded into one candidate graph.
+\end{definition}
+
+\begin{definition}[Merge operator]
+\label{def:merge-op}
+Given fragments $(\Delta V^{(a)}_t,\Delta \mathcal{E}^{(a)}_t)_{a\in A}$, a \emph{merge} operator $\MergeOp_t^{\PsiMerge}$ produces a single candidate set $\CandSet_t=(V^{\mathrm{c}}_t,E^{\mathrm{c}}_t)$ by:
+\begin{enumerate}[label=\arabic*.,leftmargin=*]
+  \item forming the disjoint union of fragments;
+  \item quotienting vertices by $\sim$ (if $\PsiMerge$ identifies duplicates);
+  \item taking the union of edge sets, relabeling endpoints under the quotient;
+  \item optionally inserting $\mathrm{conf}$ edges between mutually inconsistent survivors when $\PsiMerge$ declares incompatibility.
+\end{enumerate}
+For fixed $\PsiMerge$, $\MergeOp_t^{\PsiMerge}$ may still be \emph{set-valued} if multiple maximal conflict resolutions are permitted; a complete system description then either applies $\CloseOp_t^{\Pi}$ to each feasible candidate or specifies a selection rule that chooses one candidate set.
+Intuitively, merge reconciles parallel work into a single batch of candidates; closure then decides global acceptance.
+\end{definition}
+
+\begin{definition}[Reference merge policy]
+\label{def:ref-merge}
+The \emph{reference merge policy} $\PsiMerge^{\mathrm{ref}}$ specifies:
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item an equivalence relation $\sim$ on vertex identifiers, fixed per session, that canonicalizes duplicate hypotheses (e.g.\ same synthetic label after hash-based renaming);
+  \item \textbf{commutative} merge up to $\sim$ (no agent order dependence);
+  \item disjoint union of fragments, followed by quotient of vertices by $\sim$;
+  \item edge set as the union of images of edges under the quotient map on endpoints;
+  \item \textbf{retain tension:} if two $\sim$-classes contain vertices $v,w$ with $(v,w)\in\ConfRel_t$ after union, insert a single $\mathrm{conf}$ edge between chosen representatives (unless already present), so conflicting candidates survive for $\PsiConf$ rather than being silently dropped.
+\end{enumerate}
+Under $\PsiMerge^{\mathrm{ref}}$, $\MergeOp_t^{\PsiMerge^{\mathrm{ref}}}$ is single-valued on finite inputs once $\sim$ is fixed.
+\end{definition}
+
+\textbf{Merge before closure.} The pipeline used in this paper is: expand $\to$ merge to $\CandSet_t$ $\to$ $\CloseOp_t^{\Pi}(\GlobalState_t,\CandSet_t)$.
+Merge does not write to $\GlobalState_t$; only $\CloseOp_t^{\Pi}$ does.
+
+\subsection{Conflict policy interaction}
+\label{sec:op-conflict}
+
+$\PsiConf$ (\Cref{def:conflict-policy}) acts on $(\ThoughtGraph_t,\CandSet_t,\ConfRel_t)$ after candidate attachment to the ambient graph is specified for the purpose of evaluating $\ConfRel_t$ on candidate vertices.
+
+\subsection{Closure reference}
+\label{sec:op-close-repeat}
+
+$\CloseOp_t^{\Pi}$ is \Cref{def:closure-op}.
+Provenance policy $\Pi_{\mathrm{prov}}$ decides which stem/provenance edges become part of $\mathcal{E}^{\mathrm{g}}_{t+1}$ versus ephemeral audit logs (external to $\GlobalState$).
+
+\subsection{End-to-end composition}
+\label{sec:compose}
+
+\begin{align}
+  \SessionState_t(q) &= \SliceOp_t(q,\GlobalState_t), \\
+  \CandSet_t &\in \MergeOp_t^{\PsiMerge}\Bigl(\bigl(\ExpandOp_t(a,\SessionState_t(q),\StemOp_t(a,\SessionState_t(q)))\bigr)_{a\in A}\Bigr), \\
+  (\GlobalState_{t+1},\mathsf{status}) &= \CloseOp_t^{\Pi}(\GlobalState_t,\CandSet_t).
+\end{align}
+Ingest may prepend: $\IngestOp_t$ updates $\Vlayer{0}$ before $\SliceOp_t$.
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig3_session_lifecycle}
+  \caption{Session pipeline: slice, parallel expand, merge into $\CandSet_t$ (e.g.\ $\PsiMerge^{\mathrm{ref}}$, \Cref{def:ref-merge}), then $\CloseOp_t^{\Pi}$ (\Cref{def:closure-op}). Only closure updates $\GlobalState_{t+1}$.}
+  \label{fig:pipeline}
+\end{figure}
+
+\begin{algorithm}[t]
+  \caption{Session update at $t$ for query $q$ (policy-relative)}
+  \label{alg:main}
+  \begin{algorithmic}[1]
+    \State $\SessionState_t(q) \gets \SliceOp_t(q,\GlobalState_t)$
+    \For{each $a\in A$}
+      \State $(\Delta V^{(a)}_t,\Delta \mathcal{E}^{(a)}_t) \gets \ExpandOp_t(a,\SessionState_t(q),\StemOp_t(a,\SessionState_t(q)))$
+    \EndFor
+    \State choose $\CandSet_t \in \MergeOp_t^{\PsiMerge}\bigl((\Delta V^{(a)}_t,\Delta \mathcal{E}^{(a)}_t)_{a\in A}\bigr)$ if set-valued
+    \State $(\GlobalState_{t+1},\mathsf{status}) \gets \CloseOp_t^{\Pi}(\GlobalState_t,\CandSet_t)$
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Design-level failure modes}
+\label{sec:failure-modes}
+
+If $\MergeOp_t^{\PsiMerge}$ is set-valued and no selection rule is fixed, the pipeline need not advance---a form of \emph{merge deadlock} at the design level.
+Other obstruction categories: unsupported candidates after $\SigmaAdm$, conflict pairs after $\PsiConf$, or empty $\CandSet^{\mathrm{pass}}$.

@@ -1,0 +1,20 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+\subsection{Summary}
+\label{subsec:conc-summary}
+
+We defined \emph{State of Thought} as a layered directed typed multigraph equipped with open/closed and persistence maps, optional epistemic stance, a distinguished global subgraph, session slices, an external ingest interface into layer~$0$, path-based admissibility to globally persistent evidence, policy objects for conflict and merge, and a decomposed closure operator $\CloseOp_t^{\Pi}$.
+The technical core is \Cref{sec:formal-model}--\ref{sec:session-persistence}; \Cref{sec:theoretical} separates definitional consequences, one conjecture (\Cref{conj:close-preserve}), and questions that remain outside the present proof scope.
+
+\subsection{What this manuscript delivers}
+\label{subsec:conc-delivers}
+
+The paper contributes a \emph{single} formal state object and an explicit persistence/closure pipeline for multi-agent cognition: a mathematically packaged way to talk about provisional versus durable structure, evidence-grounded admissibility, and policy-gated promotion---without committing to a particular implementation or empirical benchmark.
+
+\subsection{Forward directions}
+\label{subsec:conc-forward}
+
+Natural continuations include alternative policies beyond the reference family, sharper hypotheses under which \Cref{conj:close-preserve} holds or fails, and totality or uniqueness conditions for $\MergeOp_t^{\PsiMerge}$ and $\CloseOp_t^{\Pi}$ when $\Pi$ is not fixed to the reference triple (\Cref{app:open-questions}).
+Such results would extend the present architecture; they are not prerequisites for using the definitions as a shared design vocabulary.
+The appendix records these directions in a form suited to later proof-oriented work (\Cref{app:proof-program}).

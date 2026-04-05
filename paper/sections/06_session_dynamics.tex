@@ -1,0 +1,44 @@
+\section{Session Dynamics and Multi-Agent Operators}
+\label{sec:session}
+
+This section describes the query-time lifecycle and provides pseudocode for the main loop.
+It is a method blueprint, not an empirical evaluation.
+
+\subsection{Multi-agent query-time lifecycle}
+When a query arrives, the system may create one or many session agents $a\in A$.
+Each agent receives a slice $\SessionState_t^{(a)}$ that may overlap other agents' slices.
+Agents propose local expansions and open thoughts; then merge/debate routines form $C_t$, and closure writes a subset into global state.
+
+\paragraph{Failure modes (qualitative).}
+Unsupported high-layer closures, contradiction accumulation, oversized slices, duplicate thought proliferation, merge deadlock, stale closed thoughts, and ambiguity about open vs.\ closed status are explicit failure families to monitor in design and implementation (this paper does not empirically instrument them).
+
+\begin{figure}[t]
+  \centering
+  \input{figures/fig3_session_lifecycle}
+  \caption{Multi-agent session lifecycle from query to closure. Branching factor and debate protocol are implementation choices; the figure shows only architectural stages.}
+  \label{fig:pipeline}
+\end{figure}
+
+\subsection{Pseudocode: main session loop}
+Algorithm~\ref{alg:main} states the main loop abstractly.
+
+\begin{algorithm}[t]
+  \caption{Abstract session update for query $q$ at time $t$}
+  \label{alg:main}
+  \begin{algorithmic}[1]
+    \State $\SessionState_t \gets \SliceOp(q, \GlobalState_t)$
+    \State spawn agent set $A$; initialize empty candidate buffer $\mathcal{C}\gets\emptyset$
+    \For{each $a\in A$}
+      \State $s^{(a)} \gets \StemOp(a, \SessionState_t)$
+      \State generate open-thought expansions local to $s^{(a)}$ (agent-specific exploration)
+      \State add proposed vertices/edges to $\mathcal{C}$ with provenance metadata
+    \EndFor
+    \State $C_t \gets \MergeOp(\mathcal{C})$
+    \State $\GlobalState_{t+1} \gets \CloseOp(\GlobalState_t, C_t)$
+    \State \textbf{rewipe} residual session-only open state according to policy
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Safety and hygiene considerations (non-anthropomorphic)}
+Provenance tracking, explicit open/closed separation, support checks before persistence, and non-silent contradiction handling are architectural safety considerations when autonomous updates are possible.
+This paper does not claim robustness guarantees; it flags where policies must exist.

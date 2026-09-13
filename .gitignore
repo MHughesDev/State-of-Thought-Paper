@@ -8,7 +8,6 @@ paper/*.fdb_latexmk
 paper/*.fls
 paper/*.log
 paper/*.out
-paper/*.pdf
 paper/*.toc
 # Generated full-text extract for agent review (regenerate with render_audit --write-full-extract)
 docs/PDF_TEXT_EXTRACT.md

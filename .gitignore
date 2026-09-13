@@ -15,3 +15,6 @@ docs/PDF_TEXT_EXTRACT.md
 # Figure visual audit outputs (regenerate: python scripts/figure_visual_audit.py)
 audit/figure_visual/exports/*.png
 audit/figure_visual/LAST_EXPORT.md
+
+# Pipeline build output
+build/
